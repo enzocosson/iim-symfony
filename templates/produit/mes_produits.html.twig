@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes produits{% endblock %}
+
+{% block body %}
+    <h1>Mes produits</h1>
+
+    {% if produits is empty %}
+        <p>Vous n'avez créé aucun produit.</p>
+    {% else %}
+        <ul>
+            {% for produit in produits %}
+                <li>
+                    {{ produit.nom }} - {{ produit.category }} - {{ produit.prix }} €
+                    <br>
+                    {{ produit.description }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

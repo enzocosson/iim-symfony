@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail produit{% endblock %}
+
+{% block body %}
+<h1>Détail du produit</h1>
+
+<table class="table">
+    <tr><th>Nom</th><td>{{ produit.nom }}</td></tr>
+    <tr><th>Prix</th><td>{{ produit.prix }} €</td></tr>
+    <tr><th>Catégorie</th><td>{{ produit.category }}</td></tr>
+    <tr><th>Description</th><td>{{ produit.description }}</td></tr>
+    <tr><th>Créé le</th><td>{{ produit.createdAt ? produit.createdAt|date('d/m/Y H:i') : 'N/A' }}</td></tr>
+    <tr><th>Mis à jour le</th><td>{{ produit.updatedAt ? produit.updatedAt|date('d/m/Y H:i') : 'N/A' }}</td></tr>
+</table>
+
+<a href="{{ path('admin_produit_edit', {'id': produit.id}) }}" class="btn btn-warning">Modifier</a>
+<a href="{{ path('admin_produit_index') }}" class="btn btn-secondary">Retour à la liste</a>
+{% endblock %}

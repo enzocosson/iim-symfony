@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail du produit{% endblock %}
+
+{% block body %}
+<h1>Détail du produit</h1>
+
+<table class="table">
+    <tr><th>Nom</th><td>{{ produit.nom }}</td></tr>
+    <tr><th>Prix</th><td>{{ produit.prix }} €</td></tr>
+    <tr><th>Catégorie</th><td>{{ produit.category }}</td></tr>
+    <tr><th>Description</th><td>{{ produit.description }}</td></tr>
+    <tr><th>Créé le</th><td>{{ produit.createdAt ? produit.createdAt|date('d/m/Y H:i') : 'N/A' }}</td></tr>
+    <tr><th>Mis à jour le</th><td>{{ produit.updatedAt ? produit.updatedAt|date('d/m/Y H:i') : 'N/A' }}</td></tr>
+</table>
+
+{% if app.user %}
+    <form method="post" action="{{ path('produit_acheter', {'id': produit.id}) }}">
+        <button class="btn btn-success" {% if not app.user.actif %}disabled{% endif %}>Acheter</button>
+    </form>
+{% else %}
+    <p><a href="{{ path('app_login') }}">Connectez-vous</a> pour acheter ce produit.</p>
+{% endif %}
+
+<a href="{{ path('produit_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+    <h1>Connexion</h1>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    {{ form_start(form) }}
+        {{ form_row(form._email) }}
+        {{ form_row(form._password) }}
+        <button class="btn btn-primary mt-3">Se connecter</button>
+    {{ form_end(form) }}
+{% endblock %}
