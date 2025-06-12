@@ -31,6 +31,10 @@ class RegistrationController extends AbstractController
             );
             // Ajout explicite des rôles depuis le formulaire
             $roles = $form->get('roles')->getData();
+            // Si le champ roles est une seule valeur (string), on le met dans un tableau
+            if (!is_array($roles)) {
+                $roles = [$roles];
+            }
             $user->setRoles($roles);
 
             $entityManager->persist($user);

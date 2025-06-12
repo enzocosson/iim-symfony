@@ -47,7 +47,9 @@ class ProduitController extends AbstractController
             return $this->redirectToRoute('produit_show', ['id' => $produit->getId()]);
         }
         $user->setPoints($user->getPoints() - $produit->getPrix());
+        $produit->setUtilisateur($user); // L'utilisateur devient propriétaire du produit acheté
         $em->persist($user);
+        $em->persist($produit);
         $em->flush();
         $this->addFlash('success', 'Achat effectué !');
         // Notifier l'admin (type achat)

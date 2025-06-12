@@ -3,16 +3,129 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-    <h1>Créer un compte</h1>
+    <div class="register-container">
+        <h1 class="register-title">Créer un compte</h1>
 
-    {{ form_start(registrationForm) }}
+        {{ form_start(registrationForm, { attr: { class: 'register-form' } }) }}
 
-        {{ form_row(registrationForm.nom) }}
-        {{ form_row(registrationForm.prenom) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.roles) }}
-        {{ form_row(registrationForm.plainPassword) }}
+            {{ form_row(registrationForm.nom, {
+                attr: {
+                    placeholder: 'Nom',
+                    class: 'register-input'
+                },
+                label: false
+            }) }}
 
-        <button class="btn btn-primary mt-3">S'inscrire</button>
-    {{ form_end(registrationForm) }}
+            {{ form_row(registrationForm.prenom, {
+                attr: {
+                    placeholder: 'Prénom',
+                    class: 'register-input'
+                },
+                label: false
+            }) }}
+
+            {{ form_row(registrationForm.email, {
+                attr: {
+                    placeholder: 'Adresse email',
+                    class: 'register-input'
+                },
+                label: false
+            }) }}
+
+            {{ form_row(registrationForm.roles, {
+                attr: {
+                    class: 'register-select'
+                },
+                label: false
+            }) }}
+
+            {{ form_row(registrationForm.plainPassword, {
+                attr: {
+                    placeholder: 'Mot de passe',
+                    class: 'register-input'
+                },
+                label: false
+            }) }}
+
+            <button class="register-button">S'inscrire</button>
+
+        {{ form_end(registrationForm) }}
+    </div>
+
+    <style>
+        .register-container {
+            max-width: 450px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .register-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .register-input,
+        .register-select {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .register-input:focus,
+        .register-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .register-button {
+            margin-top: 1rem;
+            background-color: #3498db;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .register-button:hover {
+            background-color: #2980b9;
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                margin: 2rem 1rem;
+                padding: 1.5rem;
+            }
+
+            .register-title {
+                font-size: 1.5rem;
+            }
+
+            .register-input,
+            .register-select,
+            .register-button {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
 {% endblock %}
