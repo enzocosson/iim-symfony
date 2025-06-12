@@ -12,6 +12,34 @@
         {% endblock %}
     </head>
     <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+          <div class="container-fluid d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <a class="navbar-brand" href="/">Accueil</a>
+              <a href="{{ path('produit_index') }}" class="btn btn-outline-dark">Produits</a>
+              {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin_user_list') }}" class="btn btn-outline-dark">Utilisateurs</a>
+                <a href="{{ path('admin_notification_index') }}" class="btn btn-outline-info position-relative me-2">
+                  Notifications
+                </a>
+              {% elseif app.user %}
+                <a href="{{ path('user_notification_index') }}" class="btn btn-outline-info position-relative me-2">
+                  Notifications
+                </a>
+              {% endif %}
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              {% if app.user %}
+                <span class="navbar-text me-3">Bonjour, {{ app.user.prenom }} {{ app.user.nom }}</span>
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-danger">Déconnexion</a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-outline-primary me-2">Connexion</a>
+                <a href="{{ path('app_register') }}" class="btn btn-primary">S'inscrire</a>
+              {% endif %}
+            </div>
+          </div>
+        </nav>
+
         {% block body %}{% endblock %}
     </body>
 </html>

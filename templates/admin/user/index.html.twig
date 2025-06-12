@@ -25,8 +25,10 @@
         {% for user in users %}
             <tr>
                 <td>{{ user.email }}</td>
-                <td>{{ user.roles|join(', ') }}</td>
-                <td>{{ user.username }}</td>
+                <td>
+                    {% if 'ROLE_ADMIN' in user.roles %}admin{% else %}utilisateur{% endif %}
+                </td>
+                <td>{{ user.nom }} {{ user.prenom }}</td>
                 <td>
                     <a href="{{ path('admin_user_show', {'id': user.id}) }}" class="btn btn-info btn-sm">Voir</a>
                     <a href="{{ path('admin_user_edit', {'id': user.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
@@ -34,10 +36,17 @@
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
                         <button class="btn btn-danger btn-sm">Supprimer</button>
                     </form>
-                    <form method="post" action="{{ path('admin_user_desactiver', {'id': user.id}) }}" style="display:inline-block" onsubmit="return confirm('Désactiver cet utilisateur ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('desactiver' ~ user.id) }}">
-                        <button class="btn btn-secondary btn-sm">Désactiver</button>
-                    </form>
+                    {% if user.actif == 0 %}
+                        <form method="post" action="{{ path('admin_user_desactiver', {'id': user.id}) }}" style="display:inline-block" onsubmit="return confirm('Désactiver cet utilisateur ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('desactiver' ~ user.id) }}">
+                            <button class="btn btn-secondary btn-sm">Désactiver</button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('admin_user_activer', {'id': user.id}) }}" style="display:inline-block" onsubmit="return confirm('Activer cet utilisateur ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('activer' ~ user.id) }}">
+                            <button class="btn btn-success btn-sm">Activer</button>
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}

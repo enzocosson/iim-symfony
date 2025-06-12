@@ -22,7 +22,7 @@ class ProduitController extends AbstractController
         ]);
     }
 
-    #[Route('/produits/{id}', name: 'produit_show')]
+    #[Route('/produits/{id}', name: 'produit_show', requirements: ['id' => '\\d+'])]
     public function show(Produit $produit): Response
     {
         return $this->render('produit/show.html.twig', [
@@ -50,8 +50,60 @@ class ProduitController extends AbstractController
         $em->persist($user);
         $em->flush();
         $this->addFlash('success', 'Achat effectué !');
-        // Notifier l'admin
-        $notificationService->notifyAdmin('Achat', 'Produit', $produit->getNom() . ' par ' . $user->getEmail());
+        // Notifier l'admin (type achat)
+        $notificationService->notifyAdmin('achat', 'Produit', $produit->getNom() . ' par ' . $user->getEmail());
+        return $this->redirectToRoute('produit_index');
+    }
+
+    #[Route('/produits/new', name: 'produit_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $produit = new Produit();
+        $form = $this->createForm(\App\Form\ProduitType::class, $produit);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            if ($user) {
+                $produit->setUtilisateur($user);
+            }
+            $em->persist($produit);
+            $em->flush();
+            $this->addFlash('success', 'Produit créé avec succès.');
+            return $this->redirectToRoute('produit_index');
+        }
+        return $this->render('produit/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/produits/{id}/edit', name: 'produit_edit')]
+    public function edit(Request $request, Produit $produit, EntityManagerInterface $em, NotificationService $notificationService): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $form = $this->createForm(\App\Form\ProduitType::class, $produit);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $notificationService->notifyAdmin('modification', 'Produit', $produit->getNom());
+            $this->addFlash('success', 'Produit modifié avec succès.');
+            return $this->redirectToRoute('produit_index');
+        }
+        return $this->render('produit/edit.html.twig', [
+            'form' => $form->createView(),
+            'produit' => $produit,
+        ]);
+    }
+
+    #[Route('/produits/{id}/delete', name: 'produit_delete', methods: ['POST'])]
+    public function delete(Request $request, Produit $produit, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        if ($this->isCsrfTokenValid('delete' . $produit->getId(), $request->request->get('_token'))) {
+            $em->remove($produit);
+            $em->flush();
+            $this->addFlash('success', 'Produit supprimé.');
+        }
         return $this->redirectToRoute('produit_index');
     }
 }

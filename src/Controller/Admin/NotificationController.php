@@ -17,8 +17,8 @@ class NotificationController extends AbstractController
     public function index(NotificationRepository $notificationRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $notifications = $notificationRepository->findBy([], ['createdAt' => 'DESC']);
+        $user = $this->getUser();
+        $notifications = $notificationRepository->findVisibleForUser($user);
 
         return $this->render('admin/notification/index.html.twig', [
             'notifications' => $notifications,

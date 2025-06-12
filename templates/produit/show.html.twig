@@ -19,7 +19,7 @@
         <button class="btn btn-success" {% if not app.user.actif %}disabled{% endif %}>Acheter</button>
     </form>
 {% else %}
-    <p><a href="{{ path('app_login') }}">Connectez-vous</a> pour acheter ce produit.</p>
+    <a href="{{ path('app_login') }}" class="btn btn-warning">Se connecter pour acheter</a>
 {% endif %}
 
 <a href="{{ path('produit_index') }}" class="btn btn-secondary mt-3">Retour à la liste</a>

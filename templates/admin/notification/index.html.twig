@@ -5,36 +5,35 @@
 {% block body %}
 <h1>Notifications</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Message</th>
-            <th>Créé le</th>
-            <th>Lu ?</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for notif in notifications %}
-            <tr class="{{ notif.isRead ? 'table-success' : 'table-warning' }}">
-                <td>{{ notif.message }}</td>
-                <td>{{ notif.createdAt ? notif.createdAt|date('d/m/Y H:i') : 'N/A' }}</td>
-                <td>{{ notif.isRead ? 'Oui' : 'Non' }}</td>
-                <td>
-                    {% if not notif.isRead %}
-                    <form method="post" action="{{ path('admin_notification_read', {'id': notif.id}) }}" onsubmit="return confirm('Marquer comme lue ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('read' ~ notif.id) }}">
-                        <button class="btn btn-sm btn-primary">Marquer comme lue</button>
-                    </form>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
+{% set grouped = {} %}
+{% for notif in notifications %}
+    {% set type = notif.type|default('autre') %}
+    {% if grouped[type] is not defined %}
+        {% set _ = grouped|merge({ (type): [] }) %}
+    {% endif %}
+    {% set grouped = grouped|merge({ (type): (grouped[type]|default([]))|merge([notif]) }) %}
+{% endfor %}
+
+{% for type, notifs in grouped %}
+    <h3 class="mt-4">Type : {{ type|capitalize }}</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Message</th>
+                <th>Créé le</th>
             </tr>
-        {% else %}
-            <tr><td colspan="4">Aucune notification.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for notif in notifs %}
+                <tr>
+                    <td>{{ notif.label }}</td>
+                    <td>{{ notif.createdAt ? notif.createdAt|date('d/m/Y H:i') : 'N/A' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="2">Aucune notification.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endfor %}
 
 {% endblock %}

@@ -5,6 +5,8 @@
 {% block body %}
 <h1>Liste des Produits</h1>
 
+<a href="{{ path('produit_new') }}" class="btn btn-success mb-3" {% if not is_granted('ROLE_ADMIN') %}style="display:none;"{% endif %}>Créer un produit</a>
+
 <table class="table">
     <thead>
         <tr>
@@ -22,6 +24,13 @@
                 <td>{{ produit.category }}</td>
                 <td>
                     <a href="{{ path('produit_show', {'id': produit.id}) }}" class="btn btn-info btn-sm">Voir</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('produit_edit', {'id': produit.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                        <form method="post" action="{{ path('produit_delete', {'id': produit.id}) }}" style="display:inline-block" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                            <button class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}

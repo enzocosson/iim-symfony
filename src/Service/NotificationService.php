@@ -3,16 +3,20 @@ namespace App\Service;
 
 use App\Entity\Notification;
 use App\Entity\User;
+use App\Message\NotificationMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class NotificationService
 {
     private EntityManagerInterface $em;
     private User $adminUser;
+    private MessageBusInterface $bus;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, MessageBusInterface $bus)
     {
         $this->em = $em;
+        $this->bus = $bus;
     }
 
     public function setAdminUser(User $admin): void
@@ -28,17 +32,6 @@ class NotificationService
      */
     public function notifyAdmin(string $typeAction, string $entityName, string $details): void
     {
-        if (!isset($this->adminUser)) {
-            // Récupérer l'admin par défaut (exemple : le premier admin)
-            $admin = $this->em->getRepository(User::class)->findOneBy(['roles' => ['ROLE_ADMIN']]);
-            if (!$admin) {
-                return; // Pas d'admin trouvé
-            }
-            $this->adminUser = $admin;
-        } else {
-            $admin = $this->adminUser;
-        }
-
         $label = sprintf(
             '%s %s "%s" le %s',
             $typeAction,
@@ -46,23 +39,28 @@ class NotificationService
             $details,
             (new \DateTimeImmutable())->format('d/m/Y H:i')
         );
-
-        $notif = new Notification();
-        $notif->setLabel($label);
-        $notif->setUser($admin);
-
-        $this->em->persist($notif);
-        $this->em->flush();
+        $this->bus->dispatch(new NotificationMessage(strtolower($typeAction), $label));
     }
 
     public function notifyUserDesactive(User $user): void
     {
-        $notification = new Notification();
-        $notification->setLabel('Votre compte a été désactivé. Vous ne pouvez plus acheter de produits.');
-        $notification->setUtilisateur($user);
-        $notification->setCreatedAt(new \DateTimeImmutable());
-        $notification->setUpdatedAt(new \DateTimeImmutable());
-        $this->em->persist($notification);
-        $this->em->flush();
+        $label = 'Votre compte a été désactivé. Vous ne pouvez plus acheter de produits.';
+        $this->bus->dispatch(new NotificationMessage('desactivation', $label, $user->getId()));
     }
+
+    // --- NOTIFICATION ADMIN POINTS ---
+    // Cette méthode a été déplacée ici, supprimez toute autre déclaration de notifyAdminPoints dans ce fichier.
+    public function notifyAdminPoints(User $admin, User $user, int $points): void
+    {
+        $label = sprintf('%s a obtenu %d points.', $user->getNom() . ' ' . $user->getPrenom(), $points);
+        $this->bus->dispatch(new NotificationMessage('points', $label, $admin->getId()));
+    }
+
+    public function notifyUserPoints(User $user, int $points, string $type = 'points'): void
+    {
+        $label = sprintf('Vous avez reçu %d points.', $points);
+        $this->bus->dispatch(new NotificationMessage($type, $label, $user->getId()));
+    }
+
+
 }
