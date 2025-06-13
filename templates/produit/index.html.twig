@@ -5,6 +5,12 @@
 {% block body %}
 <h1>Liste des Produits</h1>
 
+{% if app.user %}
+    <div class="alert alert-info mb-3">
+        <strong>Votre solde&nbsp;:</strong> {{ app.user.points }} points
+    </div>
+{% endif %}
+
 <a href="{{ path('produit_new') }}" class="btn btn-success mb-3" {% if not is_granted('ROLE_ADMIN') %}style="display:none;"{% endif %}>Créer un produit</a>
 
 <table class="table">

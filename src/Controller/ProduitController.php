@@ -31,30 +31,27 @@ class ProduitController extends AbstractController
     }
 
     #[Route('/produits/{id}/acheter', name: 'produit_acheter', methods: ['POST'])]
-    public function acheter(Produit $produit, EntityManagerInterface $em, NotificationService $notificationService): Response
+    public function acheter(Produit $produit, Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
     {
         $user = $this->getUser();
-        if (!$user || !$user->isActif()) {
-            $this->addFlash('danger', "Vous ne pouvez pas acheter de produit (compte désactivé).");
-            // Notifier le user s'il est désactivé
-            if ($user) {
-                $notificationService->notifyUserDesactive($user);
+        if (!$user) {
+            $this->addFlash('danger', 'Vous devez être connecté pour acheter un produit.');
+            return $this->redirectToRoute('app_login');
+        }
+        if ($this->isCsrfTokenValid('acheter' . $produit->getId(), $request->request->get('_token'))) {
+            $prix = (int) $produit->getPrix();
+            if ($user->getPoints() >= $prix) {
+                $user->setPoints($user->getPoints() - $prix);
+                $em->persist($user); // persist pour garantir l'update
+                $em->flush();
+                $this->addFlash('success', 'Achat effectué ! Il vous reste ' . $user->getPoints() . ' points.');
+            } else {
+                $this->addFlash('danger', 'Vous n\'avez pas assez de points pour acheter ce produit.');
             }
-            return $this->redirectToRoute('produit_show', ['id' => $produit->getId()]);
+        } else {
+            $this->addFlash('danger', 'Token CSRF invalide.');
         }
-        if ($user->getPoints() < $produit->getPrix()) {
-            $this->addFlash('danger', "Vous n'avez pas assez de points.");
-            return $this->redirectToRoute('produit_show', ['id' => $produit->getId()]);
-        }
-        $user->setPoints($user->getPoints() - $produit->getPrix());
-        $produit->setUtilisateur($user); // L'utilisateur devient propriétaire du produit acheté
-        $em->persist($user);
-        $em->persist($produit);
-        $em->flush();
-        $this->addFlash('success', 'Achat effectué !');
-        // Notifier l'admin (type achat)
-        $notificationService->notifyAdmin('achat', 'Produit', $produit->getNom() . ' par ' . $user->getEmail());
-        return $this->redirectToRoute('produit_index');
+        return $this->redirectToRoute('produit_show', ['id' => $produit->getId()]);
     }
 
     #[Route('/produits/new', name: 'produit_new', methods: ['GET', 'POST'])]
@@ -65,10 +62,7 @@ class ProduitController extends AbstractController
         $form = $this->createForm(\App\Form\ProduitType::class, $produit);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $this->getUser();
-            if ($user) {
-                $produit->setUtilisateur($user);
-            }
+            // Ne pas associer d'utilisateur lors de la création
             $em->persist($produit);
             $em->flush();
             $this->addFlash('success', 'Produit créé avec succès.');

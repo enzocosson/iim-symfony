@@ -5,6 +5,12 @@
 {% block body %}
 <h1>Détail du produit</h1>
 
+{% if app.user %}
+    <div class="alert alert-info mb-3">
+        Votre solde de points : <strong>{{ app.user.points }}</strong>
+    </div>
+{% endif %}
+
 <table class="table">
     <tr><th>Nom</th><td>{{ produit.nom }}</td></tr>
     <tr><th>Prix</th><td>{{ produit.prix }} €</td></tr>
@@ -16,7 +22,8 @@
 
 {% if app.user %}
     <form method="post" action="{{ path('produit_acheter', {'id': produit.id}) }}">
-        <button class="btn btn-success" {% if not app.user.actif %}disabled{% endif %}>Acheter</button>
+        <input type="hidden" name="_token" value="{{ csrf_token('acheter' ~ produit.id) }}">
+        <button class="btn btn-success">Acheter</button>
     </form>
 {% else %}
     <a href="{{ path('app_login') }}" class="btn btn-warning">Se connecter pour acheter</a>

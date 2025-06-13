@@ -46,10 +46,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $actif = null;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Produit::class)]
-    private Collection $produits;
-
-
     /**
      * @var Collection<int, Notification>
      */
@@ -64,7 +60,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->produits = new ArrayCollection();
         $this->notifications = new ArrayCollection();
     }
 
@@ -178,6 +173,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isActif(): bool
     {
+        // Correction universelle : actif = true/1 = actif, false/0 = désactivé
         return (bool) $this->actif;
     }
 
