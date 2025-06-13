@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Mon profil</h1>
+    <table class="table table-bordered w-50 mx-auto">
+        <tr><th>Nom</th><td>{{ user.nom }}</td></tr>
+        <tr><th>Prénom</th><td>{{ user.prenom }}</td></tr>
+        <tr><th>Email</th><td>{{ user.email }}</td></tr>
+        <tr><th>Points</th><td>{{ user.points }}</td></tr>
+        <tr><th>Statut</th><td>{% if user.actif == 0 %}Actif{% else %}Désactivé{% endif %}</td></tr>
+        <tr><th>Rôle</th><td>{{ user.roles|join(', ') }}</td></tr>
+    </table>
+    <div class="btn-back mt-4">
+        <a href="{{ path('profile_edit') }}" class="btn btn-outline-primary">Modifier mon profil</a>
+    </div>
+</div>
+{% endblock %}

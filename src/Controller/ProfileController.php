@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProfileController extends AbstractController
 {
     #[Route('/profile/edit', name: 'profile_edit')]
-    public function edit(Request $request, EntityManagerInterface $em): Response
+    public function edit(Request $request, EntityManagerInterface $em, \App\Service\NotificationService $notificationService): Response
     {
         $user = $this->getUser();
         if (!$user) {
@@ -23,8 +23,9 @@ class ProfileController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+            $notificationService->notifyAdmin('modification profil', 'Profil', $user->getNom() . ' ' . $user->getPrenom());
             $this->addFlash('success', 'Profil mis à jour !');
-            return $this->redirectToRoute('profile_edit');
+            return $this->redirectToRoute('profile');
         }
         return $this->render('profile/edit.html.twig', [
             'form' => $form->createView(),
@@ -41,6 +42,18 @@ class ProfileController extends AbstractController
         $notifications = $notificationRepository->findVisibleForUser($user);
         return $this->render('profile/notifications.html.twig', [
             'notifications' => $notifications,
+        ]);
+    }
+
+    #[Route('/profile', name: 'profile')]
+    public function index(): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        return $this->render('profile/index.html.twig', [
+            'user' => $user,
         ]);
     }
 }

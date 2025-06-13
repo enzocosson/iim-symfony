@@ -141,6 +141,7 @@
                     {% elseif app.user %}
                         <a href="{{ path('user_notification_index') }}" class="simple-link {{ app.request.get('_route') == 'user_notification_index' ? 'active' : '' }}">Notifications</a>
                     {% endif %}
+                    <a href="{{ path('profile') }}" class="simple-link {{ app.request.get('_route') == 'profile' ? 'active' : '' }}">Profil</a>
                 </nav>
                 <div class="simple-user">
                     {% if app.user %}
