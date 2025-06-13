@@ -19,7 +19,7 @@ class AdminFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $admin = new User();
-        $admin->setEmail('admin@admin.com');
+        $admin->setEmail('admin@mail.com');
         $admin->setNom('Admin');
         $admin->setPrenom('Admin');
         $admin->setRoles(['ROLE_ADMIN']);
