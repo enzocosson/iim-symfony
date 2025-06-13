@@ -42,8 +42,9 @@ class ProduitController extends AbstractController
             $prix = (int) $produit->getPrix();
             if ($user->getPoints() >= $prix) {
                 $user->setPoints($user->getPoints() - $prix);
-                $em->persist($user); // persist pour garantir l'update
+                $em->persist($user);
                 $em->flush();
+                $notificationService->notifyAdmin('Achat', 'Produit', $produit->getNom() . ' par ' . $user->getNom());
                 $this->addFlash('success', 'Achat effectué ! Il vous reste ' . $user->getPoints() . ' points.');
             } else {
                 $this->addFlash('danger', 'Vous n\'avez pas assez de points pour acheter ce produit.');
