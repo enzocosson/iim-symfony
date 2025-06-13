@@ -73,13 +73,20 @@
     </table>
 
     {% if app.user %}
+        {% set canBuy = app.user.actif == 0 and app.user.points >= produit.prix %}
         <form method="post" action="{{ path('produit_acheter', {'id': produit.id}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('acheter' ~ produit.id) }}">
             <button
-                class="btn-buy {% if app.user.actif != 0 %}disabled{% else %}enabled{% endif %}"
-                {% if app.user.actif != 0 %}disabled{% endif %}
+                class="btn-buy {% if not canBuy %}disabled{% else %}enabled{% endif %}"
+                {% if not canBuy %}disabled{% endif %}
             >
-                {% if app.user.actif == 0 %}Acheter{% else %}Compte désactivé{% endif %}
+                {% if app.user.actif != 0 %}
+                    Compte désactivé
+                {% elseif app.user.points < produit.prix %}
+                    Solde insuffisant
+                {% else %}
+                    Acheter
+                {% endif %}
             </button>
         </form>
     {% else %}
@@ -90,4 +97,14 @@
         <a href="{{ path('produit_index') }}" class="btn btn-outline-secondary mt-4">← Retour à la liste</a>
     </div>
 </div>
+
+{% if app.session.flashbag.has('success') %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for msg in app.session.flashbag.get('success') %}
+                toastr.success("{{ msg|e('js') }}");
+            {% endfor %}
+        });
+    </script>
+{% endif %}
 {% endblock %}
